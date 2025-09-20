@@ -93,7 +93,7 @@ body {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-button {
+.login-button, .register-button {
   width: 100%;
   padding: 0.8rem;
   border: none;
@@ -136,4 +136,26 @@ button {
     margin-bottom: 0.4rem;
     flex: unset;
   }
+}
+
+.form-footer {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1.8rem; 
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  padding: 0;
 }
