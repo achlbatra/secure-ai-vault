@@ -1,0 +1,46 @@
+Anchal Batra
+Faridabad, Haryana | +91 7291915328 
+ anchalbatra49@gmail.com | LinkedIn| Github
+
+EDUCATION	
+Kalinga Institute of Industrial Technology	Bhubaneshwar, Odisha
+Bachelor of Technology (B. Tech.) - Information Technology	 Sep 2022 - May 2026 (Expected)
+Grade - 9.36/10
+EXPERIENCE	
+Service Engineer Intern, Providence Global Centre 	Hyderabad, Telangana
+Gained hands-on experience on Databricks and explored the features of Unity Catalog, particularly 	May 2025 - July 2025
+in Healthcare. 
+Build backend services using Python Scripts and FastAPI
+Developed a full stacked speech-to-query assistant with OpenAI integration and role based access controls.
+SKILLS
+Languages: Python, C, C++, SQL
+Web Development: HTML, CSS, Javascript, Reactjs, FastAPI
+Libraries & Frameworks: NumPy, Pandas, Matplotlib, Scikit-Learn, Streamlit
+Machine Learning & NLP: Data Preprocessing, Feature Engineering, Model Training & Evaluation, Neural Networks, Sentiment Analysis, Text Processing
+Data Analysis: EDA, Data Visualization, Statistical Analysis
+Problem Solving: Strong foundation in Data Structures and Algorithms
+Tools & Platforms: Git, Jupyter Notebook, VS Code, Databricks, Google Colab
+PROJECTS
+DATASCOPE | React.js, FastAPI, OpenAI LLMs, Databricks, SQL, Web Speech API
+Created a voice enabled querying interface with OpenAI LLM integration where users can explore datasets fetched from databricks workspace and generate/run SQL queries on selected tables using text or speech inputs. 
+Designed specifically for healthcare providers with role-based access control to simulate seemless querying without compromising governance and data accountability.
+HOME PRICE PREDICTION | Python, Flask, Scikit-learn, Pandas, NumPy, Matplotlib, HTML, CSS, JavaScript
+  Built a machine learning model with 90% accuracy to predict home prices using a Kaggle dataset of 10,000+ records and integrated it into a Flask-based web application with a user-friendly interface.
+BACHAT BUDDY-EXPENSE TRACKER |Python, Flask, HTML, CSS, JavaScript, NumPy, Pandas, Streamlit, Matplotlib                                                                                           
+Designed a web-based expense tracking application enabling users to manage transactions, and view personalized financial insights.
+
+POSITIONS OF RESPONSIBILITY	
+KODESSA - WOMEN IN TECH SOCIETY (KIIT)	Bhubaneshwar, Odisha
+Engineering Projects Lead	Aug 2024 – Present
+Managed and completed technical projects on time while ensuring they met the society's goals.
+Played a key role in the core team of 10 members, leading and managing a society of 100+ women in tech.
+
+CERTIFICATIONS
+IBM Devops and Software Engineering
+        Issued by IBM
+AWS Academy Graduate – Cloud Foundations   
+Issued by Amazon Web Services Training and Certification
+AWS Academy Graduate – Cloud Architecting 
+Issued by Amazon Web Services Training and Certification
+Complete Machine Learning & Data Science Program	
+Issued by Geeksforgeeks
