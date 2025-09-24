@@ -23,40 +23,37 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;  
-    setLoading(true);
-    
-    const formDetails = {
-      email: email,
-      password: password
-    };
+  e.preventDefault();
+  if (!validateForm()) return;  
+  setLoading(true);
 
-    try {
-      const response = await fetch('http://localhost:8000/auth/login', {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formDetails)
-      });
+  const formData = new URLSearchParams();
+  formData.append("username", email);  // OAuth2 expects 'username'
+  formData.append("password", password);  // OAuth2 expects 'password'
 
-      const data = await response.json();
+  try {
+    const response = await fetch('http://localhost:8000/auth/login', {
+      method: 'POST', 
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: formData
+    });
 
-      if (response.ok) {
-        localStorage.setItem('token', data.access_token);
-        console.log('Login successful:', data);
-        navigate('/dashboard');
-      } else {
-        setError(data.detail || 'Login failed. Please try again.');
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error('Error during login:', error);
-      setError('An error occurred. Please try again.');
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem('token', data.access_token);
+      navigate('/dashboard');
+    } else {
+      setError(data.detail || 'Login failed. Please try again.');
     }
-    setLoading(false);
-  };
+  } catch (error) {
+    console.error('Error during login:', error);
+    setError('An error occurred. Please try again.');
+  }
+  setLoading(false);
+};
 
   return (
     <>

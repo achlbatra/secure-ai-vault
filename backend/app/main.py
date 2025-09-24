@@ -1,10 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth_routers as auth
+from app.routers import file_routers as file
+from app.routers import users as user
 
 app = FastAPI(title="Secure AI Vault")
 
 app.include_router(auth.router)
+app.include_router(file.router)
+app.include_router(user.router)
 
 origins = {
     "http://localhost:3000", 
