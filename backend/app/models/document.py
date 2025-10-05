@@ -12,4 +12,5 @@ class Document(Base):
     risk_score = Column(Integer, nullable=True)
     status = Column(String, default="pending")  # e.g., 'uploaded', 'processing', 'completed'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    detected_pii = Column(Text, nullable=True)  # JSON string of detected PII types
 
