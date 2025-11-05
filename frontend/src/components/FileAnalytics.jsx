@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/FileAnalytics.css';
+import SanitizationPreview from './SanitizationPreview';
+import { useNavigate } from 'react-router-dom';
 
 const FileAnalytics = ({ file, onSanitize, onProceedToAI }) => {
   const [selectedMethod, setSelectedMethod] = useState(null);
@@ -74,9 +76,11 @@ const FileAnalytics = ({ file, onSanitize, onProceedToAI }) => {
     ];
   };
 
+  const navigate = useNavigate();
   const handleSanitize = (method) => {
     setSelectedMethod(method);
     setShowPreview(true);
+    navigate('/sanitize/preview', { state: { file, method } });
   };
 
   const handleAdminApproval = () => {
@@ -90,18 +94,29 @@ const FileAnalytics = ({ file, onSanitize, onProceedToAI }) => {
 
   const options = getSanitizationOptions();
 
-  // Group detected PII by type
-  const groupPIIByType = () => {
-    if (!file.detected_pii || file.detected_pii.length === 0) return {};
-    
-    const grouped = {};
-    file.detected_pii.forEach(item => {
-      const type = item.type || 'Other';
+const groupPIIByType = () => {
+  if (!file.detected_pii || file.detected_pii.length === 0) return {};
+
+  const grouped = {};
+
+  file.detected_pii.forEach(item => {
+    // If item is a string like "GPE", "ORG", "PERSON"
+    if (typeof item === "string") {
+      const type = item; 
+      if (!grouped[type]) grouped[type] = [];
+      grouped[type].push({ value: item });
+    }
+    // If item is an object like { type: "Email", value: "xyz" }
+    else {
+      const type = item.type || "Other";
       if (!grouped[type]) grouped[type] = [];
       grouped[type].push(item);
-    });
-    return grouped;
-  };
+    }
+  });
+
+  console.log("Grouped:", grouped);
+  return grouped;
+};
 
   const piiByType = groupPIIByType();
 

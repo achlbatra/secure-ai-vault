@@ -23,6 +23,7 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async (e) => {
+  localStorage.clear();
   e.preventDefault();
   if (!validateForm()) return;  
   setLoading(true);
@@ -44,6 +45,8 @@ const LoginPage = () => {
 
     if (response.ok) {
       localStorage.setItem('token', data.access_token);
+      localStorage.setItem('userId', data.userId);
+      localStorage.setItem('email', email);
       navigate('/dashboard');
     } else {
       setError(data.detail || 'Login failed. Please try again.');

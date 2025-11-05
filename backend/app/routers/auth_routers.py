@@ -25,7 +25,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
     token = create_access_token(user_id=user.id, user_email=user.email)
-    return {"access_token": token, "token_type": "bearer"}
+    
+    return {"access_token": token, "token_type": "bearer", "userId": user.id, "role": user.role, "email": user.email}
 
 @router.post("/register", response_model=dict)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):

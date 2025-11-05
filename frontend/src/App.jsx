@@ -10,6 +10,7 @@ import AnalyticsPage from './components/AnalyticsPage'
 import DocumentsPage from './components/DocumentsPage'
 import HistoryPage from './components/HistoryPage'
 import ProfilePage from './components/ProfilePage'
+import SanitizationPreview from './components/SanitizationPreview'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -23,6 +24,7 @@ function App() {
           <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/upload" element={<UploadPage />} />
+          <Route path="/sanitize/preview" element={<SanitizationPreview />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/history" element={<HistoryPage />} />

@@ -14,19 +14,30 @@ const UploadPage = () => {
   const [dragActive, setDragActive] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
 
+  
+
   const fetchUploads = async () => {
     try {
       const res = await axios.get("http://localhost:8000/files/analytics", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
 
-      const normalized = res.data
-        .map(d => ({
-          ...d,
-          detected_pii: typeof d.detected_pii === "string" ? JSON.parse(d.detected_pii || "[]") : d.detected_pii,
-          recommendations: d.recommendations || []
-        }))
-        .sort((a, b) => new Date(b.uploaded_at || b.created_at) - new Date(a.uploaded_at || a.created_at));
+      const normalized = (res.data || [])
+  .map(d => ({
+    ...d,
+    // backend may return stringified JSON or array
+    detected_pii:
+      typeof d.detected_pii === "string"
+        ? (d.detected_pii ? JSON.parse(d.detected_pii) : [])
+        : (d.detected_pii || []),
+    // keep recommendations always an array
+    recommendations:
+      Array.isArray(d.recommendations)
+        ? d.recommendations
+        : (d.recommendations ? (typeof d.recommendations === "string" ? JSON.parse(d.recommendations) : [d.recommendations]) : [])
+  }))
+  .sort((a, b) => new Date(b.uploaded_at || b.created_at) - new Date(a.uploaded_at || a.created_at));
+
 
       const recent = normalized.slice(0, 5);
       setUploads(recent);
@@ -41,6 +52,7 @@ const UploadPage = () => {
     fetchUploads().then(recent => {
       if (recent.length) setLatestFile(recent[0]);
     });
+    // Only once on mount; keep polling if you want by adding interval
   }, []);
 
   const handleFileChange = async (e) => {
@@ -60,7 +72,7 @@ const UploadPage = () => {
 
     try {
       setTimeout(() => setProcessingProgress(30), 500);
-      
+
       const res = await fetch("http://localhost:8000/files/upload", {
         method: "POST",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -69,7 +81,10 @@ const UploadPage = () => {
 
       setProcessingProgress(70);
 
-      if (!res.ok) throw new Error("Upload failed");
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Upload failed");
+      }
       const data = await res.json();
 
       setProcessingProgress(90);
@@ -78,7 +93,8 @@ const UploadPage = () => {
       setUploadedFileName(data.filename);
 
       const recent = await fetchUploads();
-      const uploaded = recent.find(f => f.filename === data.filename);
+      // server may store file under same filename or stored_as; match by filename
+      const uploaded = recent.find(f => f.filename === data.filename || f.filename === data.stored_as);
       if (uploaded) setLatestFile(uploaded);
       setUploads(recent);
       setProcessingProgress(100);
@@ -88,7 +104,7 @@ const UploadPage = () => {
       }, 5000);
     } catch (err) {
       setUploading(false);
-      setError(err.message);
+      setError(err.message || "Upload failed");
       setProcessingProgress(0);
       console.error(err);
     }
@@ -114,11 +130,21 @@ const UploadPage = () => {
     }
   };
 
+  // Called by FileAnalytics after a sanitization save or admin action to refresh state
   const handleSanitize = async (filename, method) => {
     try {
-      await axios.post("http://localhost:8000/files/sanitize", { filename, method }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      const token = localStorage.getItem("token");
+      // If method is special (admin_approval) you might have a separate API; for now call sanitize/save for consistency
+      await axios.post("http://localhost:8000/sanitize/save", {
+        file: filename,
+        method: method,
+        pii: [],
+        partial_mask: true,
+        preserve_structure: true
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
+
       const recent = await fetchUploads();
       const updated = recent.find(f => f.filename === filename);
       if (updated) setLatestFile(updated);
@@ -128,13 +154,26 @@ const UploadPage = () => {
   };
 
   const handleProceedToAI = (filename, mode = 'normal') => {
-    window.location.href = `/ai-processing?file=${filename}&mode=${mode}`;
+    window.location.href = `/ai-processing?file=${encodeURIComponent(filename)}&mode=${encodeURIComponent(mode)}`;
   };
 
   const getRiskBadgeClass = (score) => {
     if (score <= 30) return 'risk-low';
     if (score <= 60) return 'risk-medium';
-    return 'risk-high';
+    if (score <= 85) return 'risk-high';
+    return 'risk-critical';
+  };
+
+  // New: return a color hex for a given risk score (used inline on badge)
+  const getRiskColor = (score) => {
+    // fallback for null/undefined scores
+    if (score === null || score === undefined || Number.isNaN(Number(score))) return '#6b7280'; // gray
+
+    const s = Number(score);
+    if (s <= 30) return '#10b981';      // green (low)
+    if (s <= 60) return '#f59e0b';      // amber (medium)
+    if (s <= 85) return '#ef4444';      // red (high)
+    return '#7f1d1d';                   // dark red (critical)
   };
 
   const getStatusBadgeClass = (status) => {
@@ -155,7 +194,7 @@ const UploadPage = () => {
       </div>
 
       <div className="upload-container">
-        <form 
+        <form
           className={`upload-form ${dragActive ? 'drag-active' : ''}`}
           onSubmit={e => e.preventDefault()}
           onDragEnter={handleDrag}
@@ -170,10 +209,10 @@ const UploadPage = () => {
             <h2>Drag and drop files here</h2>
             <p>or click to select files</p>
           </div>
-          <input 
-            type="file" 
-            id="fileInput" 
-            className="hidden-file-input" 
+          <input
+            type="file"
+            id="fileInput"
+            className="hidden-file-input"
             onChange={handleFileChange}
             accept=".txt,.csv,.json,.docx"
           />
@@ -308,7 +347,19 @@ const UploadPage = () => {
                       <small>{new Date(file.uploaded_at || file.created_at).toLocaleTimeString()}</small>
                     </td>
                     <td>
-                      <span className={`risk-badge ${getRiskBadgeClass(file.risk_score)}`}>
+                      <span
+                        className={`risk-badge ${getRiskBadgeClass(file.risk_score)}`}
+                        style={{
+                          backgroundColor: getRiskColor(file.risk_score),
+                          color: '#ffffff',
+                          padding: '6px 10px',
+                          borderRadius: 8,
+                          display: 'inline-block',
+                          minWidth: 56,
+                          textAlign: 'center',
+                          fontWeight: 600
+                        }}
+                      >
                         {file.risk_score != null ? `${file.risk_score}%` : "-"}
                       </span>
                     </td>
@@ -318,8 +369,8 @@ const UploadPage = () => {
                       </span>
                     </td>
                     <td>
-                      <button 
-                        className="view-btn" 
+                      <button
+                        className="view-btn"
                         onClick={() => setLatestFile(file)}
                       >
                         View Analysis
